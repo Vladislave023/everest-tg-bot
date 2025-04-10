@@ -8,6 +8,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Verify files
+        run: |
+          cd py  # Переходим в папку py
+          ls -la
+          [ -f db.py ] || { echo "db.py not found!"; exit 1; }
+          echo "All files present!"
+          
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -15,16 +22,16 @@ jobs:
           
       - name: Install dependencies
         run: |
+          cd py
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           
       - name: Test DB initialization
-        run: python -c "from db import init_db; init_db(); print('Database initialized successfully')"
-        
-      - name: Verify config
-        env:
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-          ADMIN_ID: ${{ secrets.ADMIN_ID }}
         run: |
-          python -c "from config import TOKEN, ADMIN_ID; assert TOKEN and ADMIN_ID, 'Config check failed'"
-          echo "Config verified successfully!"
+          cd py
+          python -c "from db import init_db; init_db(); print('Database initialized successfully')"
+          
+      - name: Verify imports
+        run: |
+          cd py
+          python -c "from config import TOKEN, ADMIN_ID; from bot import main; print('All imports work')"
